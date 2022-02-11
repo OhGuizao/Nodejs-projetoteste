@@ -55,6 +55,21 @@ app.get("/produtos/listar", (req, res) => {
     })
 });
 
+//método GET, para a busca de apenas um produto
+app.get("/produtos/buscar/:id", (req, res) => {
+
+    conexao.query("select * from tbproduto where idproduto=?", [req.params.id], (erro, resultado) => {
+        if (erro) {
+            return res.status(500).send({ msg: `Erro ao tentar executar consultac${erro}` });
+        }
+        if (resultado == null || resultado == "") {
+            return res.status(404).send({ msg: `Não foi possivel localizar este produto` });
+        }
+        res.status(200).send({ msg: resultado });
+    });
+
+});
+
 //  --------->  POST
 app.post("/produtos/cadastro", (req, res) => {
     conexao.query("insert into tbproduto set ?", [req.body], (erro, resultado) => {
@@ -91,3 +106,5 @@ app.delete("/produtos/apagar/:id", (req, res) => {
 
 //Vamos subir o servidor na porta:5000
 app.listen("5000", () => console.log("Servidor online em http://localhost:5000"));
+
+module.exports = app;

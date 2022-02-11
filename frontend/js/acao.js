@@ -1,3 +1,22 @@
+function apagar() {
+    if (confirm("Você deseja apagar esse produto?") == 0) {
+        window.location.replace("index.html");
+        return;
+    }
+    fetch(
+        `http://localhost:5000/produtos/apagar/${window.location.search.substring(
+            4
+        )}`,
+        {
+            method: "DELETE",
+            headers: {
+                accept: "application/json",
+                "content-type": "application/json",
+            },
+        }
+    ).catch((erro) => console.error(`Erro -> ${erro}`));
+}
+
 function carregarDadosAPI() {
 
 
@@ -65,12 +84,54 @@ function cadastrar() {
         .catch((erro) => console.error(`Erro ao cadastrar -> ${erro}`));
 }
 
-function atualizar() {
+function carregarAtualizar() {
     //Obter o endereço passado na url
-    var id = window.location.search;
-    alert(id);
+    var id = window.location.search.substring(4);
+
+    //Vamos fazr uma busca para receber um produto especifico para receber o produto e carregar o formulário com dados
+    fetch(`http://localhost:5000/produtos/buscar/${id}`)
+        .then((response) => response.json())
+        .then((dados) => {
+            console.log(dados);
+            document.getElementById("txtNomeProduto").value = dados.msg[0].nomeproduto;
+            document.getElementById("txtDescricao").value = dados.msg[0].descricao;
+            document.getElementById("txtPreco").value = dados.msg[0].preco;
+            document.getElementById("txtFoto").value = dados.msg[0].foto;
+        })
+        .catch((erro) => console.error(`Erro ao carregar a api -> ${erro}`));
 }
 
-window.document.body.onload = () => {
-    carregarDadosAPI();
+function atualizar() {
+
+    if (confirm("Você deseja atualizar este produto?") == 0) {
+        return;
+    }
+
+
+    var id = window.location.search.substring(4);
+
+    var nome = document.getElementById("txtNomeProduto").value;
+    var descricao = document.getElementById("txtDescricao").value;
+    var preco = document.getElementById("txtPreco").value;
+    var foto = document.getElementById("txtFoto").value;
+
+    fetch(`http://localhost:5000/produtos/atualizar/${id}`, {
+        method: "PUT",
+        headers: {
+            accept: "application/json",
+            "content-type": "application/json"
+        },
+        body: JSON.stringify({
+            nomeproduto: nome,
+            descricao: descricao,
+            preco: preco,
+            foto: foto
+        })
+    })
+        .then((response) => response.json())
+        .then((dados) => {
+            alert(dados.msg.message);
+        })
+        .catch((erro) => console.error(`Erro ao tentar acessar a api ->${erro}`))
+
 }
